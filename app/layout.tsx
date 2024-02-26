@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils"
 import Header from "./ui/header";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+export const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
 
 export const metadata: Metadata = {
   title: "Nyongho | Frontend Developer",
@@ -17,11 +22,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased max-w-screen-md min-w-[320px] mx-auto`}>
-        <div className="flex flex-col">
+      <body className={
+        cn(
+          "max-w-screen-md min-w-[320px] mx-auto bg-background font-sans antialiased",
+          fontSans.variable
+        )
+      }>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <Header />
-          {children}
-        </div>
+          <div className="flex flex-col pt-14">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
