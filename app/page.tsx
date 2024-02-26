@@ -3,8 +3,8 @@ import Header from "@/app/ui/header";
 
 export default function Home() {
   return (
-    <div>
+    <main>
       Home
-    </div>
+    </main>
   );
 }

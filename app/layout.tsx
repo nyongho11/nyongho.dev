@@ -18,10 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased max-w-screen-md min-w-[320px] mx-auto`}>
-        <main className="flex flex-col">
+        <div className="flex flex-col">
           <Header />
           {children}
-        </main>
+        </div>
       </body>
     </html>
   );
