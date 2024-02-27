@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Header() {
     return (
-        <header className="h-14 fixed top-0 z-50 w-1/2 border-b flex justify-between items-center">
+        <header className="h-14 sticky top-0 z-50 w-full bg-background flex justify-between items-center">
             <div>
                 <Button asChild variant="link">
                     <Link href="/">Home</Link>

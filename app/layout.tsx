@@ -13,6 +13,7 @@ export const fontSans = FontSans({
 export const metadata: Metadata = {
   title: "Nyongho | Frontend Developer",
   description: "Developer blog by Nyongho",
+  keywords: "frontend, developer, blog, nyongho",
 };
 
 export default function RootLayout({
@@ -35,7 +36,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <div className="flex flex-col pt-14">
+          <div className="flex flex-col">
             {children}
           </div>
         </ThemeProvider>
