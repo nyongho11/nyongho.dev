@@ -1,3 +1,4 @@
+import Container from "@/app/ui/container";
 import { getPostBySlug } from "@/lib/api";
 import markdownToHtml from "@/lib/markdownToHtml";
 import { Metadata } from "next";
@@ -13,11 +14,13 @@ export default async function Post({ params }: { params: { slug: string } }) {
     const content = await markdownToHtml(post.content || '');
 
     return (
-        <main className="px-4 pt-8">
-            <h1 className="font-bold text-6xl">{post.title}</h1>
-            <div
-                dangerouslySetInnerHTML={{ __html: content }}
-            />
+        <main>
+            <Container>
+                <h1 className="font-bold text-6xl">{post.title}</h1>
+                <div
+                    dangerouslySetInnerHTML={{ __html: content }}
+                />
+            </Container>
         </main>
     );
 }
@@ -28,7 +31,6 @@ type Props = {
 }
 
 export function generateMetadata({ params, searchParams }: Props): Metadata {
-
     const post = getPostBySlug(params.slug);
 
     if (!post) {
@@ -36,7 +38,7 @@ export function generateMetadata({ params, searchParams }: Props): Metadata {
     }
 
     return {
-        title: `${post.title} | Nyongho`,
+        title: `${post.title}`,
         openGraph: {
             title: `${post.title}`,
             images: [post.ogImage.url],
