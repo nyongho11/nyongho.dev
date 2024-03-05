@@ -1,4 +1,22 @@
+import fs from "node:fs";
+import { transformerNotationDiff } from '@shikijs/transformers';
+import nextMDX from "@next/mdx";
+import rehypePrettyCode from "rehype-pretty-code";
+ 
+/** @type {import('rehype-pretty-code').Options} */
+const options = {
+    theme: "dark-plus",
+};
+ 
+const withMDX = nextMDX({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [[rehypePrettyCode, options]],
+  },
+});
+ 
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = { reactStrictMode: true };
+ 
+export default withMDX(nextConfig);

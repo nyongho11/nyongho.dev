@@ -1,0 +1,44 @@
+---
+title: 'js-sleep'
+excerpt: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus.'
+coverImage: '/assets/blog/preview/cover.jpg'
+date: '2020-03-16T05:35:07.322Z'
+author:
+  name: Joe Haddad
+  picture: '/assets/blog/authors/joe.jpeg'
+ogImage:
+  url: '/assets/blog/preview/cover.jpg'
+---
+```tsx {3}
+export const copyClipboard = async (url = window.document.location.href) => {
+  try {
+    await navigator.clipboard.writeText(url);
+    alert('링크가 복사되었습니다.');
+  } catch (e) {
+    console.error(e);
+    alert('클립보드 복사에 실패했습니다.');
+  }
+};
+```
+
+https://web.dev/i18n/ko/async-clipboard/
+
+---
+
+레거시 방법
+
+```tsx {3}
+export const copyURL = () => {
+  let currentUrl = window.document.location.href;
+  let t = document.createElement('textarea');
+  document.body.appendChild(t);
+  t.value = currentUrl;
+  t.select();
+  document.execCommand('copy');
+  document.body.removeChild(t);
+
+  alert('링크가 복사되었습니다.');
+};
+```
+
+https://sezzled.tistory.com/138

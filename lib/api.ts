@@ -13,6 +13,11 @@ export function getPostSlugs() {
 
 export function getPostBySlug(slug: string) {
   const fullPath = join(POSTS_PATH, `${slug}.mdx`);
+
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
 

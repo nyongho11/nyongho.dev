@@ -16,10 +16,12 @@ export default async function Post({ params }: { params: { slug: string } }) {
     return (
         <main>
             <Container>
+                <article className="prose dark:prose-invert">
                 <h1 className="font-bold text-6xl">{post.title}</h1>
                 <div
                     dangerouslySetInnerHTML={{ __html: content }}
                 />
+                </article>
             </Container>
         </main>
     );
