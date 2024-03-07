@@ -4,19 +4,20 @@ import Link from "next/link";
 import Container from "../ui/container";
 
 export const metadata: Metadata = {
-    title: "Blog | Nyongho",
+    title: "Blog",
     description: "Developer blog by Nyongho",
     keywords: "frontend, developer, blog, nyongho",
 };
 
 export default function Blog() {
     const posts = getAllPosts();
+    console.log(posts);
     return (
         <main>
             <Container>
                 <div className="flex flex-col gap-5">
-                    {posts.map((post, index) => (
-                        <Link key={post.slug} className="font-semibold text-2xl" as={`/blog/${post.slug}`} href="/blog/[slug]">{index}. {post.slug}</Link>
+                    {posts.map((post) => (
+                        <Link key={post.slug} className="text-xl" as={`/blog/${post.slug}`} href="/blog/[slug]">{post.title}</Link>
                     ))}
                 </div>
             </Container>

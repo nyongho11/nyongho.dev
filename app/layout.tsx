@@ -11,9 +11,21 @@ export const fontSans = FontSans({
 })
 
 export const metadata: Metadata = {
-  title: "Nyongho | Frontend Developer",
-  description: "Developer blog by Nyongho",
+  title: {
+    template: "%s - Nyongho",
+    default: "Nyongho",
+  },
+  description: "Frontend developer blog by Nyongho.",
   keywords: "frontend, developer, blog, nyongho",
+  // openGraph: {}
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  }
 };
 
 export default function RootLayout({

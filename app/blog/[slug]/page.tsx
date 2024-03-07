@@ -1,10 +1,11 @@
 import Container from "@/app/ui/container";
 import DateFormatter from "@/app/ui/date-formatter";
+import ReadTimeFormatter from "@/app/ui/read-time-formatter";
 import { getPostBySlug } from "@/lib/api";
-import markdownToHtml from "@/lib/markdownToHtml";
-import dayjs, { Dayjs } from "dayjs";
+import { markdownToHtml } from "@/lib/markdownToHtml";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import readingTime from "reading-time";
 
 export default async function Post({ params }: { params: { slug: string } }) {
     const post = getPostBySlug(params.slug);
@@ -14,19 +15,25 @@ export default async function Post({ params }: { params: { slug: string } }) {
     }
 
     const content = await markdownToHtml(post.content || '');
+    const stats = readingTime(content);
+
+    console.log(stats);
 
     return (
-        <main>
-            <Container>
+        <Container>
+            <main>
                 <article className="prose dark:prose-invert overflow-hidden">
-                <h1 className="font-bold text-5xl">{post.title}</h1>
-                <DateFormatter dateString={post.date} />
-                <div
-                    dangerouslySetInnerHTML={{ __html: content }}
-                />
+                    <h1 className="font-bold text-5xl">{post.title}</h1>
+                    <div className="flex gap-6">
+                        <DateFormatter dateString={post.date} />
+                        <ReadTimeFormatter readTime={stats.text} />
+                    </div>
+                    <div
+                        dangerouslySetInnerHTML={{ __html: content }}
+                    />
                 </article>
-            </Container>
-        </main>
+            </main>
+        </Container>
     );
 }
 
