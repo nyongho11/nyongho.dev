@@ -17,6 +17,7 @@
     "@shikijs/transformers": "^1.1.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "date-fns": "^3.3.1",
     "dayjs": "^1.11.10",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.340.0",

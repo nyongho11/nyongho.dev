@@ -1,6 +1,8 @@
 import Container from "@/app/ui/container";
+import DateFormatter from "@/app/ui/date-formatter";
 import { getPostBySlug } from "@/lib/api";
 import markdownToHtml from "@/lib/markdownToHtml";
+import dayjs, { Dayjs } from "dayjs";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -16,8 +18,9 @@ export default async function Post({ params }: { params: { slug: string } }) {
     return (
         <main>
             <Container>
-                <article className="prose dark:prose-invert">
-                <h1 className="font-bold text-6xl">{post.title}</h1>
+                <article className="prose dark:prose-invert overflow-hidden">
+                <h1 className="font-bold text-5xl">{post.title}</h1>
+                <DateFormatter dateString={post.date} />
                 <div
                     dangerouslySetInnerHTML={{ __html: content }}
                 />
