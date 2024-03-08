@@ -17,8 +17,6 @@ export default async function Post({ params }: { params: { slug: string } }) {
     const content = await markdownToHtml(post.content || '');
     const stats = readingTime(content);
 
-    console.log(stats);
-
     return (
         <Container>
             <main>
