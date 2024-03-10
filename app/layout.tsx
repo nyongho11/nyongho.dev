@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   },
   description: "Frontend developer blog by nyongho.",
   keywords: "frontend, developer, blog, nyongho",
-  // openGraph: {}
+  openGraph: {
+    title: "nyongho.dev",
+  },
   robots: {
     index: true,
     follow: true,
