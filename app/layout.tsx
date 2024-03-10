@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "./ui/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Noto_Sans_KR } from "next/font/google";
 
-export const fontSans = FontSans({
+const fontSans = Noto_Sans_KR({
+  weight: ["500"],
   subsets: ["latin"],
-  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ export default function RootLayout({
       <body
         className={cn(
           "max-w-screen-md min-w-[320px] mx-auto bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.className
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
