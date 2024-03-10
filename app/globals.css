@@ -33,12 +33,6 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
-
-    code[data-theme*=' '],
-    code[data-theme*=' '] span {
-      color: var(--shiki-light);
-      background-color: var(--shiki-light-bg);
-    }
   }
 
   .dark {
@@ -69,11 +63,6 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    code[data-theme*=' '],
-    code[data-theme*=' '] span {
-      color: var(--shiki-dark);
-      background-color: var(--shiki-dark-bg);
-    }
   }
 }
 

@@ -1,17 +1,42 @@
 import Image from "next/image";
 import Container from "./ui/container";
+import {
+  GitHubLogoIcon,
+  LinkedInLogoIcon,
+  EnvelopeClosedIcon,
+} from "@radix-ui/react-icons";
 
 export default function Home() {
   return (
     <main>
-      <Container>      
-        <div className="break-keep leading-8">
-        <h2 className="text-3xl font-bold">김용호</h2>
-        <p>안녕하세요, 저는 김용호입니다.</p>
-        <p>새로운 기술을 접할 때마다 그 기술의 가능성에 대해 궁금해하고, 이를 활용하여 무엇을 만들어낼 수 있을지 고민합니다.</p>
-        <p>명확하고 가독성 좋은 코드를 작성하는 것에 관심이 많으며, 정보를 공유하는 것에 기쁨을 느낍니다.</p>
-        <p>보안을 했고, 요즘은 프론트엔드 개발자로서 사용자에게 편리하고 즐거운 경험을 제공하는 프로덕트를 만들기 위해 노력하고 있습니다.</p>
-      </div>
+      <Container>
+        <div className="prose dark:prose-invert break-keep leading-8">
+          <h2 className="text-3xl font-bold">김용호</h2>
+          <p>"단순한 것이 아름답다" 라는 말을 좋아합니다.</p>
+          <p>
+            새로운 지식을 습득하는 것을 즐기며 이것이 코드와 사용자 경험의
+            향상으로 연결 되는 곳에 열정이 닿습니다.
+          </p>
+          <div className="flex gap-5 mt-10">
+            <a href="mailto:nyongho0303@gmail.com" aria-label="email">
+              <EnvelopeClosedIcon />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/%EC%9A%A9%ED%98%B8-%EA%B9%80-366976234/"
+              aria-label="linkedin"
+              target="_blank"
+            >
+              <LinkedInLogoIcon />
+            </a>
+            <a
+              href="https://github.com/Yongho5580"
+              aria-label="github"
+              target="_blank"
+            >
+              <GitHubLogoIcon />
+            </a>
+          </div>
+        </div>
       </Container>
     </main>
   );
