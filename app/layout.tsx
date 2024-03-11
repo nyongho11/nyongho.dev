@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import Header from "./ui/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Noto_Sans_KR } from "next/font/google";
-import siteConfig from "@/lib/site-config";
+import { GoogleAnalytics } from '@next/third-parties/google'
+import { GA_TRACKING_ID, SITE_CONFIG } from "@/lib/constants";
 
 const fontSans = Noto_Sans_KR({
   weight: ["400"],
@@ -25,10 +26,10 @@ export const metadata: Metadata = {
   },
   authors: {
     name: "김용호",
-    url: siteConfig.url,
+    url: SITE_CONFIG.url,
   },
   alternates: {
-    canonical: siteConfig.url,
+    canonical: SITE_CONFIG.url,
   },
   robots: {
     index: true,
@@ -47,17 +48,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn(
-          "max-w-screen-md min-w-[320px] mx-auto bg-background font-sans antialiased",
-          fontSans.className
-        )}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Header />
-          <div className="flex flex-col">{children}</div>
-        </ThemeProvider>
-      </body>
+        <body
+          className={cn(
+            "max-w-screen-md min-w-[320px] mx-auto bg-background font-sans antialiased",
+            fontSans.className
+          )}
+        >
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Header />
+            <div className="flex flex-col">{children}</div>
+          </ThemeProvider>
+        </body>
+        <GoogleAnalytics gaId={GA_TRACKING_ID} />
     </html>
   );
 }
