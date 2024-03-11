@@ -20,10 +20,11 @@ export default async function Post({ params }: { params: { slug: string } }) {
   return (
     <Container>
       <main>
-        <article className="prose dark:prose-invert overflow-hidden">
+        <article className="overflow-hidden">
           <h1 className="font-bold text-5xl">{post.title}</h1>
-          <div className="flex gap-6">
+          <div className="flex gap-2">
             <DateFormatter dateString={post.date} />
+            <span className="text-sm text-gray-500">·</span>
             <ReadTimeFormatter readTime={stats.text} />
           </div>
           <div dangerouslySetInnerHTML={{ __html: content }} />

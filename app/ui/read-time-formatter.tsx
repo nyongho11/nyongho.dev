@@ -4,7 +4,7 @@ type Props = {
 
 const ReadTimeFormatter: React.FunctionComponent<Props> = ({ readTime }) => {
     return (
-        <div className="text-sm text-gray-800">
+        <div className="text-sm text-gray-500">
             {readTime}
         </div>
     )

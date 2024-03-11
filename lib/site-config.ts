@@ -1,5 +1,5 @@
 const siteConfig = {
-  url: "",
+  url: "https://nyongho.vercel.app",
 };
 
 export default siteConfig;

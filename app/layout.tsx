@@ -4,9 +4,10 @@ import { cn } from "@/lib/utils";
 import Header from "./ui/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Noto_Sans_KR } from "next/font/google";
+import siteConfig from "@/lib/site-config";
 
 const fontSans = Noto_Sans_KR({
-  weight: ["500"],
+  weight: ["400"],
   subsets: ["latin"],
 });
 
@@ -15,10 +16,16 @@ export const metadata: Metadata = {
     template: "%s - nyongho",
     default: "nyongho.dev",
   },
-  description: "Frontend developer blog by nyongho.",
-  keywords: "frontend, developer, blog, nyongho",
+  description: "단순함에 아름다움이 있다. nyongho의 개발 블로그입니다.",
   openGraph: {
     title: "nyongho.dev",
+  },
+  authors: {
+    name: "김용호",
+    url: siteConfig.url,
+  },
+  alternates: {
+    canonical: siteConfig.url,
   },
   robots: {
     index: true,
