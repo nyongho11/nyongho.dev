@@ -6,6 +6,7 @@ import { markdownToHtml } from "@/lib/markdownToHtml";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import readingTime from "reading-time";
+import Comments from "@/app/ui/comments";
 
 export default async function Post({ params }: { params: { slug: string } }) {
   const post = getPostBySlug(params.slug);
@@ -21,7 +22,7 @@ export default async function Post({ params }: { params: { slug: string } }) {
     <Container>
       <main>
         <article className="overflow-hidden">
-          <h1 className="font-bold text-5xl">{post.title}</h1>
+          <h1 className="font-bold text-3xl">{post.title}</h1>
           <div className="flex gap-2">
             <DateFormatter dateString={post.date} />
             <span className="text-sm text-gray-500">·</span>
@@ -29,6 +30,7 @@ export default async function Post({ params }: { params: { slug: string } }) {
           </div>
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </article>
+        <Comments />
       </main>
     </Container>
   );
