@@ -28,6 +28,9 @@ export const metadata: Metadata = {
     name: "김용호",
     url: SITE_CONFIG.url,
   },
+  icons: {
+    icon: '/favicon.ico',
+  },
   alternates: {
     canonical: SITE_CONFIG.url,
   },
