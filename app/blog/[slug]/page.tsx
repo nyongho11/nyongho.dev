@@ -49,9 +49,7 @@ export function generateMetadata({ params, searchParams }: Props): Metadata {
   }
 
   return {
-    title: {
-      absolute: `${post.title}`,
-    },
+    title: post.title,
     openGraph: {
       title: `${post.title}`,
       description: `${post.description}`,

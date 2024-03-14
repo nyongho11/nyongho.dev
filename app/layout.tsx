@@ -15,9 +15,9 @@ const fontSans = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: {
     template: "%s - nyongho",
-    default: "nyongho.dev",
+    default: "nyongho",
   },
-  description: "단순함에 아름다움이 있다. nyongho의 개발 블로그입니다.",
+  description: "프론트엔드 개발자 nyongho의 담백한 개발 블로그",
   openGraph: {
     images: [
       'https://github.com/Yongho5580/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0',
@@ -62,7 +62,7 @@ export default function RootLayout({
             <div className="flex flex-col">{children}</div>
           </ThemeProvider>
         </body>
-        <GoogleAnalytics gaId={GA_TRACKING_ID} />
+        {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_TRACKING_ID} />}
     </html>
   );
 }
