@@ -30,6 +30,7 @@ export default async function Post({ params }: { params: { slug: string } }) {
           </div>
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </article>
+        <hr />
         <Comments />
       </main>
     </Container>
