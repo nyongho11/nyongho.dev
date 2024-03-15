@@ -40,7 +40,6 @@ export function getAllPosts() {
       date: data.date,
       coverImage: data.coverImage,
       description: data.description,
-      ogImage: data.ogImage,
     };
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   return allPosts;

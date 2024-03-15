@@ -1,11 +1,7 @@
+import { Post } from "@/interfaces/post";
 import { format } from "date-fns";
 
-type Props = {
-  title: string;
-  description: string;
-  date: string;
-  readTime: string;
-};
+type Props = Omit<Post, 'slug' | 'content'>;
 
 const PostPreview: React.FunctionComponent<Props> = ({
   title,
