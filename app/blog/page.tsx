@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 
 export default function Blog() {
   const posts = getAllPosts();
-  console.log(posts);
   return (
     <main>
       <Container>
@@ -26,7 +25,7 @@ export default function Blog() {
             </Link>
           ))}
         </div>
-      </Container>
+      </Container> 
     </main>
   );
 }

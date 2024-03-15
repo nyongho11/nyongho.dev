@@ -38,7 +38,6 @@ export function getAllPosts() {
       readTime: stats.text,
       title: data.title,
       date: data.date,
-      coverImage: data.coverImage,
       description: data.description,
     };
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
