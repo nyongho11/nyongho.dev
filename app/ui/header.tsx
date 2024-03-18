@@ -8,7 +8,7 @@ import Image from "next/image";
 
 export default function Header() {
   return (
-    <header className="h-14 sticky top-0 px-2 z-100 w-full bg-background flex justify-between items-center">
+    <header className="h-14 sticky top-0 px-2 z-2000 w-full bg-background flex justify-between items-center">
       <div>
         <Link href="/" className="h-fit w-fit" aria-label="Home">
           <Image className="dark:invert" src="/assets/logo.svg" alt="nyongho logo" width="30" height="30" />

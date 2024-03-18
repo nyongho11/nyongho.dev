@@ -22,8 +22,8 @@ export default async function Post({ params }: { params: { slug: string } }) {
     <Container>
       <main>
         <article className="overflow-hidden">
-          <h1 className="font-bold text-3xl">{post.title}</h1>
-          <div className="flex gap-2">
+          <h1 className="mb-4 text-3xl">{post.title}</h1>
+          <div className="flex gap-2 mb-8">
             <DateFormatter dateString={post.date} />
             <span className="text-sm text-gray-500">·</span>
             <ReadTimeFormatter readTime={stats.text} />

@@ -106,6 +106,7 @@ const config = {
             'pre code span': {
               color: 'var(--shiki-light)',
             },
+            
             '.dark pre code span': {
               color: 'var(--shiki-dark)',
             },
