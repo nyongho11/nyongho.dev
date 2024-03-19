@@ -10,7 +10,7 @@ const PostPreview: React.FunctionComponent<Props> = ({
   readTime,
 }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
         <div className="text-xl font-semibold">{title}</div>
         <div className="flex gap-1">
