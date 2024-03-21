@@ -13,7 +13,7 @@ export default function Home() {
       <Container>
         <h2 className="text-2xl font-bold">김용호</h2>
         <div className="flex flex-col gap-0 sm:gap-8 sm:flex-row">
-          <Image src={Tree} alt="tree" width={200} height={200} placeholder="blur" />
+          <Image src={Tree} alt="tree" width={200} height={200} placeholder="blur" className="rounded" />
           <div className="break-keep leading-8 flex flex-col justify-center">
             <p>"단순함에 아름다움이 있다." 라는 말을 좋아합니다.</p>
             <p>

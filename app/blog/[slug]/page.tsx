@@ -19,8 +19,8 @@ export default async function Post({ params }: { params: { slug: string } }) {
   const stats = readingTime(content);
 
   return (
-    <Container>
-      <main>
+    <main>
+      <Container>
         <article className="overflow-hidden">
           <h1 className="mb-4 text-3xl">{post.title}</h1>
           <div className="flex gap-2 mb-8">
@@ -32,8 +32,8 @@ export default async function Post({ params }: { params: { slug: string } }) {
         </article>
         <hr />
         <Comments />
-      </main>
-    </Container>
+      </Container>
+    </main>
   );
 }
 
@@ -51,15 +51,25 @@ export function generateMetadata({ params, searchParams }: Props): Metadata {
 
   return {
     title: post.title,
+    description: post.description,
     openGraph: {
-      title: `${post.title}`,
-      description: `${post.description}`,
+      title: post.title,
+      description: post.description,
       images: [
         'https://github.com/Yongho5580/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0',
       ],
       locale: "ko_KR",
       type: "website",
+      siteName: 'nyongho'
     },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: [
+        'https://github.com/Yongho5580/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0',
+      ],
+    }
   };
 }
 

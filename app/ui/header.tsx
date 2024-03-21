@@ -11,7 +11,7 @@ export default function Header() {
     <header className="h-14 sticky top-0 px-2 z-2000 w-full bg-background flex justify-between items-center">
       <div>
         <Link href="/" className="h-fit w-fit" aria-label="Home">
-          <Image className="dark:invert" src="/assets/logo.svg" alt="nyongho logo" width="30" height="30" />
+          <Image className="dark:invert" src="/assets/logo.svg" alt="logo" width="30" height="30" />
         </Link>
       </div>
       <div className="flex items-center">

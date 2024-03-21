@@ -6,6 +6,7 @@ import PostPreview from "../ui/post-preivew";
 
 export const metadata: Metadata = {
   title: "Blog",
+  description: "블로그",
 };
 
 export default function Blog() {
