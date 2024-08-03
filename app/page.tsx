@@ -5,7 +5,7 @@ import {
   LinkedInLogoIcon,
   EnvelopeClosedIcon,
 } from "@radix-ui/react-icons";
-import Tree from "@/public/assets/tree.jpg"
+import Tree from "@/public/assets/tree.jpg";
 
 export default function Home() {
   return (
@@ -13,7 +13,16 @@ export default function Home() {
       <Container>
         <h2 className="text-2xl font-bold">김용호</h2>
         <div className="flex flex-col gap-0 sm:gap-8 sm:flex-row">
-          <Image src={Tree} alt="tree" width={200} height={200} placeholder="blur" className="rounded" />
+          <Image
+            src={Tree}
+            sizes="200px"
+            priority
+            alt="tree"
+            width={200}
+            height={200}
+            placeholder="blur"
+            className="rounded-md"
+          />
           <div className="break-keep leading-8 flex flex-col justify-center">
             <p>"단순함에 아름다움이 있다." 라는 말을 좋아합니다.</p>
             <p>
@@ -21,7 +30,8 @@ export default function Home() {
               향상으로 연결 되는 곳에 열정이 닿습니다.
             </p>
             <p>
-              숲보다는 나무를 바라보려고 노력합니다. 나무를 이해하지 못하면 숲이 나무로 이루어져 있다는 기본적인 사실조차 잊어버립니다.
+              숲보다는 나무를 바라보려고 노력합니다. 나무를 이해하지 못하면 숲이
+              나무로 이루어져 있다는 기본적인 사실조차 잊어버립니다.
             </p>
           </div>
         </div>
