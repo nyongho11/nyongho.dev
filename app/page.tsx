@@ -15,12 +15,10 @@ export default function Home() {
         <div className="flex flex-col gap-0 sm:gap-8 sm:flex-row">
           <Image
             src={Tree}
-            sizes="200px"
-            priority
             alt="tree"
             width={200}
             height={200}
-            placeholder="blur"
+            quality={75}
             className="rounded-md"
           />
           <div className="break-keep leading-8 flex flex-col justify-center">
@@ -29,10 +27,7 @@ export default function Home() {
               새로운 지식을 습득하는 과정을 즐기며 이것이 코드와 사용자 경험의
               향상으로 연결 되는 곳에 열정이 닿습니다.
             </p>
-            <p>
-              숲보다는 나무를 바라보려고 노력합니다. 나무를 이해하지 못하면 숲이
-              나무로 이루어져 있다는 기본적인 사실조차 잊어버립니다.
-            </p>
+            <p></p>
           </div>
         </div>
         <div className="flex gap-5 mt-10">

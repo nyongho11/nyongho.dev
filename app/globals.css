@@ -73,4 +73,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    object-fit: cover;
+  }
 }
