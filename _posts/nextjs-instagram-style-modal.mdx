@@ -75,7 +75,7 @@ Intercepting Routes 또한 컨벤션을 지켜야하는데요. 이는 `(..)folde
 
 이제 개념들을 알아 봤으니 이 개념들을 토대로 차근차근 만들어보겠습니다. 설명은 제가 적용한 프로젝트 기준으로 하겠습니다.
 
-### 폴더 구조
+## 폴더 구조
 
 저는 home이라는 경로에서 모달을 보여주고 싶으므로 구조를 다음과 같이 했습니다.
 
@@ -104,7 +104,7 @@ Intercepting Routes 또한 컨벤션을 지켜야하는데요. 이는 `(..)folde
 
 만약 더 자세한 설명을 원하신다면 Route Segment의 동작 방식에 대해서 [이 링크](https://nextjs.org/docs/app/building-your-application/routing#route-segments)를 참조하시면 좋을 것 같습니다.
 
-### 코드 작성
+## 코드 작성
 
 먼저 기본이 될 상세 페이지를 만들어줍니다.
 
@@ -185,7 +185,7 @@ export default function GatheringItem() {
 }
 ```
 
-### 그래서 어떻게 작동하는걸까? 🤔
+## 그래서 어떻게 작동하는걸까? 🤔
 
 기본적으로 Next.js는 **슬롯들의 활성 상태를 계속 추적**합니다. 슬롯내에서 렌더링되는 컨텐츠는 네비게이션 방식에 따라 달라지게 됩니다.
 
@@ -196,7 +196,7 @@ export default function GatheringItem() {
 
 따라서, 모달(`@modal/...`)은 **Soft Navigation**에서만 작동하며, **Hard Navigation** 시에는 `gatherings/post/[id]` 페이지가 직접 로드되는겁니다.
 
-### 폴더 구조
+## 폴더 구조
 
 최종적인 폴더 구조는 다음과 같습니다.
 
@@ -218,6 +218,6 @@ export default function GatheringItem() {
  ┃ ┃ ┃ ┗ 📜page.tsx
 ```
 
-### 최종 결과
+## 최종 결과
 
 ![최종 결과](/assets/blog/nextjs-instagram-style-modal/image-2.gif)
