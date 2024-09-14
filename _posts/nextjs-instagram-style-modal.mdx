@@ -1,0 +1,223 @@
+---
+title: Next.js에서 인스타그램과 같은 모달을 구현해보자
+description: Parallel Routes와 Intercepting Routes를 이용해 공유 가능한 모달을 구현했습니다.
+date: "2024-08-06T22:37:00.322Z"
+---
+
+안녕하세요 👋 이번에는 저의 사이드 프로젝트에 적용한 **Parallel Routes**와 **Intercepting Routes**를 이용해 만든 모달의 구현 과정에 대해서 설명해보려고 합니다. 참고로 이 기능은 Next.js 13 이상 버전에서만 가능합니다.
+
+## 뭘 원했을까?
+
+저는 프로젝트에서 리스트의 아이템을 클릭했을 때 상세 내용을 보여주고 싶었고, 페이지 전체가 라우트 되기 보다는 현재 페이지를 유지하면서 그 위에 모달을 띄어주는 방법을 원했습니다.
+
+그리고 전통적인 모달 방식보다는 아래의 인스타그램과 같이 **URL을 통해 공유 가능한 모달** 방식을 원했습니다.
+
+![인스타그램 예시](/assets/blog/nextjs-instagram-style-modal/image-1.gif)
+
+## 어떻게 구현할 수 있을까?
+
+공식문서를 살펴보니 Next.js 13 버전부터 지원하는 두 가지 기능을 이용해 이를 쉽게 구현할 수 있었습니다. 그리고 이를 위해 알아야 하는 개념들은 다음과 같았습니다.
+
+## [Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes)
+
+동일한 레이아웃에서 여러 페이지를 동시에 또는 조건적으로 렌더링 할 수 있는 기능입니다. 예를 들어, `Photos.tsx`와 `Comments.tsx`라는 두 컴포넌트가 있을때 이 둘을 동일한 레이아웃 (`layout.tsx`)에서 동시에 보여줄 수 있습니다.
+
+이 기능은 **슬롯**을 사용해 구현할 수 있는데요. 슬롯을 만들기 위해서는 `@folderName` 라는 컨벤션을 지켜야합니다. 마치 Next.js에서 페이지를 만들 때 `page.js`라는 파일명을 사용하는 것처럼요.
+
+여기서 중요한 점은, 슬롯들은 **Route Segment가 아니며 URL 구조에 영향을 주지 않는다는 것**입니다.
+
+예를 들어, `@modal/views`의 경우 `@modal`은 단순 슬롯일 뿐이므로, 실제 URL은 `/views`가 됩니다.
+
+이렇게 슬롯을 만든 후에는 다음과 같이 상위 레이아웃에서 props로 전달하여 다음과 같이 사용할 수 있습니다.
+
+```typescript
+// app/layout.tsx
+// app/@analytics/page.js, app/@team/page.js가 props로 전달 됨
+
+export default function Layout({
+  children,
+  team,
+  analytics,
+}: {
+  children: React.ReactNode;
+  analytics: React.ReactNode;
+  team: React.ReactNode;
+}) {
+  return (
+    <>
+      {children}
+      {team}
+      {analytics}
+    </>
+  );
+}
+```
+
+## [Intercepting Routes](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes)
+
+다른 경로의 컨텐츠를 현재 레이아웃에서 로드하는 기능입니다. 쉽게 말해, 사용자가 다른 페이지로 완전히 이동하지 않고도 현재 보고 있는 화면에 다른 경로의 컨텐츠를 표시할 수 있도록 하는 기능인거죠.
+
+Intercepting Routes 또한 컨벤션을 지켜야하는데요. 이는 `(..)folderName` 와 같이 표현합니다. 그리고 가로채려는 경로의 레벨에 따라 다음과 같이 사용할 수 있습니다.
+
+- `(.)` 같은 레벨의 경로
+- `(..)` 한 레벨 위의 경로
+- `(..)(..)` 두 레벨 위의 경로
+- `(...)` 루트 `app` 디렉토리 경로
+
+여기서 중요한 것은 `(..)` 컨벤션의 레벨은 **File-System이 아닌, Route Segment를 기준**으로 한다는겁니다. 이에 대한 자세한 설명은 밑에서 이어나가겠습니다.
+
+이 둘을 활용해 deep linking을 지원하는 모달을 만들 수 있습니다. 그리고 이는 다음의 문제들을 가능하게 해줍니다.
+
+- URL을 통해 공유 가능한 모달 컨텐츠를 만들 수 있습니다.
+- 페이지가 새로고침되면, 단순히 모달을 닫는 대신 컨텍스트(내용)를 유지합니다.
+- 뒤로가기 버튼을 눌렀을때 이전 방문한 페이지로 돌아가지 않고 모달을 닫습니다.
+- 앞으로가기 버튼을 눌렀을 때 모달이 다시 열립니다.
+
+이제 개념들을 알아 봤으니 이 개념들을 토대로 차근차근 만들어보겠습니다. 설명은 제가 적용한 프로젝트 기준으로 하겠습니다.
+
+### 폴더 구조
+
+저는 home이라는 경로에서 모달을 보여주고 싶으므로 구조를 다음과 같이 했습니다.
+
+```
+📦app
+ ┣ 📂(tabs)
+ ┃ ┣ 📂home
+ ┃ ┃ ┣ 📂@modal
+ ┃ ┃ ┃ ┣ 📂(..)gatherings
+ ┃ ┃ ┃ ┃ ┗ 📂post
+ ┃ ┃ ┃ ┃ ┃ ┗ 📂[id]
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜page.tsx
+ ┃ ┃ ┣ 📜layout.tsx
+ ┃ ┃ ┗ 📜page.tsx
+ ┣ 📂gatherings
+ ┃ ┗ 📂post
+ ┃ ┃ ┗ 📂[id]
+ ┃ ┃ ┃ ┗ 📜page.tsx
+```
+
+위 폴더 구조를 이해하기 어려울 수 있으니 조금 더 설명을 덧 붙히자면, (tabs)는 [Route Group](https://nextjs.org/docs/app/building-your-application/routing/route-groups#convention)을 의미합니다. 이는 **URL에 영향을 주지 않으면서 관련 경로들끼리 한 폴더에 묶고 싶을 때** `()` 괄호를 이용해 폴더를 만들어주고 이 안에 경로들을 넣어줄 수 있는 기능입니다.
+
+위를 정리해보자면, `(tabs)`는 URL 경로에 포함되지 않습니다. 그리고 `@modal` 또한 URL 경로에 포함되지 않으므로 `(..)gatherings`의 한 단계 위는 `home`이 됩니다.
+
+즉, home을 기준으로 한 단계 위 경로에 gatherings가 있으므로 `(..)`를 해야 정상적으로 매치됩니다.
+
+만약 더 자세한 설명을 원하신다면 Route Segment의 동작 방식에 대해서 [이 링크](https://nextjs.org/docs/app/building-your-application/routing#route-segments)를 참조하시면 좋을 것 같습니다.
+
+### 코드 작성
+
+먼저 기본이 될 상세 페이지를 만들어줍니다.
+
+```typescript
+// app/gatherings/post/[id]/page.tsx
+
+import { GatheringDetail } from "@/app/components/gatherings";
+
+export default function Page() {
+  return <GatheringDetail />;
+}
+```
+
+위 페이지의 URL은 `BASE_URL/gatherings/post/[id]`가 되겠죠?
+
+이제는 경로를 가로채기 위한 모달 또한 만들어주겠습니다. 저는 `home` 경로에서 가로챌 것이므로 아래의 경로에 페이지를 만들어줬습니다.
+
+```typescript
+// app/(tabs)/home/@modal/(..)gatherings/post/[id]/page.tsx
+
+import { GatheringItem } from "@/app/components/gatherings";
+import { ModalContainer } from "@/app/components/common";
+
+export default function Page() {
+  return (
+    <ModalContainer>
+      <GatheringDetail />
+    </ModalContainer>
+  );
+}
+```
+
+그런 다음 `@modal` 폴더안에 `default.tsx`를 추가해주고 null을 리턴시킵니다.
+
+여기서 `default.js`는 Hard Navigation과 같은 상태로 인해 Parallel Routes에서 **슬롯의 활성 상태를 복구할 수 없을 때 사용**됩니다. 더 자세한 내용은 아래에서 다루겠습니다.
+
+```typescript
+// app/(tabs)/home/@modal/default.tsx
+export default function Default() {
+  return null;
+}
+```
+
+그리고 모달을 열고 닫기 위해 `home`의 `layout.tsx`에 `@modal` 슬롯을 prop으로 받아옵니다.
+
+```typescript
+// app/(tabs)/home/layout.tsx
+
+export default function HomeLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
+  return (
+    <div>
+      {children}
+      {modal}
+    </div>
+  );
+}
+```
+
+그 다음 모달 슬롯을 활성화 시켜줄 `Link`컴포넌트에 상세 페이지를 연결해줍니다.
+
+```typescript
+export default function GatheringItem() {
+  return (
+    <Link
+      href={`/gatherings/post/${id}`}
+      className="flex h-full w-full flex-col"
+      scroll={false}
+    >
+      상세 페이지로 이동
+    </Link>
+  );
+}
+```
+
+### 그래서 어떻게 작동하는걸까? 🤔
+
+기본적으로 Next.js는 **슬롯들의 활성 상태를 계속 추적**합니다. 슬롯내에서 렌더링되는 컨텐츠는 네비게이션 방식에 따라 달라지게 됩니다.
+
+- **Soft Navigation**: Next.js App Router가 제공하는 네비게이션 방식으로, 페이지 간 이동을 할 때 전체 페이지를 로드하지 않고, 변경된 경로에 해당하는 부분만 부분적으로 렌더링 하는 방식입니다. 이를 통해 브라우저가 전체 페이지를 다시 요청하지 않으므로 페이지간 네비게이션이 빠르게 이루어지며, 클라이언트 측 상태들이 모두 유지됩니다.
+- **Hard Navigation**: 브라우저의 기본 네비게이션 방식으로, 페이지 간 이동 시 전체 페이지를 새로 고침 하는 방식입니다. 페이지 전체가 새로 고쳐지기 때문에, 클라이언트 측에서 유지하고 있던 상태들이 모두 초기화됩니다.
+
+즉, 처음에는 `default.js`가 기본값인 null을 반환하므로, 모달은 아무것도 렌더링하지 않습니다. 그리고 이것을 **모달이 닫힌 상태**라고 볼 수 있습니다. 그리고 사용자가 Soft Navigation으로 `/gatherings/post/1` 경로로 이동하면, `layout.tsx`의 `{modal}`에 `@modal` 슬롯을 통해 해당 페이지가 렌더링됩니다. 이것을 **모달이 열린 상태**라고 볼 수 있습니다. 이 때 `@modal` 슬롯의 활성 상태를 Next.js는 추적할 수 있으며 이후 만약 유저가 모달이 열린 상태에서 브라우저를 새로고침 한다면, Next.js가 관리하고 있던 클라이언트 상태가 모두 초기화 돼 추적 상태를 잃으므로 `{modal}`에는 다시 기본값인 null이 할당됩니다. 즉, 브라우저 새로고침 시 모달은 기본값인 닫힌 상태로 변경되고, Next.js는 전체 페이지를 서버로부터 다시 요청하기 때문에 현재 URL에 맞는 경로인 `/gatherings/post/[id]`를 로드하게 됩니다.
+
+따라서, 모달(`@modal/...`)은 **Soft Navigation**에서만 작동하며, **Hard Navigation** 시에는 `gatherings/post/[id]` 페이지가 직접 로드되는겁니다.
+
+### 폴더 구조
+
+최종적인 폴더 구조는 다음과 같습니다.
+
+```
+📦app
+ ┣ 📂(tabs)
+ ┃ ┣ 📂home
+ ┃ ┃ ┣ 📂@modal
+ ┃ ┃ ┃ ┣ 📂(..)gatherings
+ ┃ ┃ ┃ ┃ ┗ 📂post
+ ┃ ┃ ┃ ┃ ┃ ┗ 📂[id]
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜page.tsx
+ ┃ ┃ ┃ ┣ 📜default.tsx
+ ┃ ┃ ┣ 📜layout.tsx
+ ┃ ┃ ┗ 📜page.tsx
+ ┣ 📂gatherings
+ ┃ ┗ 📂post
+ ┃ ┃ ┗ 📂[id]
+ ┃ ┃ ┃ ┗ 📜page.tsx
+```
+
+### 최종 결과
+
+![최종 결과](/assets/blog/nextjs-instagram-style-modal/image-2.gif)

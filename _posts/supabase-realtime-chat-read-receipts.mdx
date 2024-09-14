@@ -1,0 +1,282 @@
+---
+title: Supabase의 실시간 채팅에서 읽음 기능을 구현한 과정
+description: 메말랐던 채팅 앱에 읽음 기능 한 스푼을 첨가한 과정을 다룹니다.
+date: "2024-08-12T16:14:00.322Z"
+---
+
+이번 사이드 프로젝트의 목표 중 하나였던 1:1 실시간 채팅 기능을 Supabase를 통해 개발했습니다.
+
+하지만 기본적인 채팅 기능을 만들고 나니 뭔가 2% 부족한 느낌이 들더라고요. 🤔 뭐가 빠졌을까 고민하다가, 친구에게 보낸 인스타그램 DM을 보고 깨달았습니다.
+
+![인스타그램 DM](/assets/blog/supabase-realtime-chat-read-receipts/image-1.jpeg)
+
+**그래 이거다**
+
+보통 채팅 앱들은 상대방이 내 메시지를 읽었는지 확인할 수 있는 기능을 지원하기에 이것까지 구현하는 것을 목표로 잡았습니다.
+
+### DB 필드 추가
+
+먼저 기존의 메세지 모델에 각 메시지의 읽음 상태를 나타낼 `isRead`필드를 추가했습니다.
+
+```java
+model Message {
+  id          Int       @id @default(autoincrement())
+  payload     String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  chatRoom    ChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  chatRoomId  String
+  userId      Int
+  // isRead 필드 추가
+  isRead      Boolean   @default(false)
+}
+```
+
+### 메시지를 읽음 처리 하는 서버 함수 생성
+
+이로써 각 메시지는 모두 `isRead`상태를 가지게 됐습니다. 그래서 읽음 처리를 하려면, 상대방이 보낸 모든 메세지를 읽음 처리 해야했습니다.
+
+따라서 해당 채팅방에서 상대방의 메시지 중 읽지 않은 메시지를 모두 읽음 처리하는 서버 함수를 만들어줬습니다.
+
+```typescript
+export async function markMessagesAsRead(chatRoomId: string) {
+  const session = await getSession();
+
+  await db.message.updateMany({
+    where: {
+      chatRoomId,
+      isRead: false,
+      userId: {
+        not: session.id,
+      },
+    },
+    data: {
+      isRead: true,
+    },
+  });
+
+  revalidatePath("/chats");
+}
+```
+
+그 다음 `useEffect`를 사용해 컴포넌트가 마운트될 때 Supabase 클라이언트를 생성하고, 특정 채팅방(`chatRoomId`)을 구독하도록 설정했어요. `broadcast` 이벤트를 구독해서, 메시지가 수신될 때마다 `setMessages`를 통해 메시지 상태를 업데이트하는 덕분에 유저가 새로고침을 하지 않아도 실시간으로 메시지를 주고받을 수 있습니다.
+
+```typescript
+useEffect(() => {
+  const client = createClient(String(SUPABASE_URL), String(SUPABASE_KEY));
+
+  channel.current = client.channel(`chatRoom-${chatRoomId}`);
+
+  channel.current
+    .on("broadcast", { event: "message" }, (payload) => {
+      setMessages((prevMsgs) => [...prevMsgs, payload.payload]);
+    })
+    .subscribe();
+
+  return () => {
+    channel.current?.unsubscribe();
+  };
+}, [chatRoomId]);
+```
+
+마지막으로 메시지 전송 버튼을 누를 때 보내는 `newMessage` 객체에 `isRead` 값을 추가해서 기본값을 `false`로 설정하도록 했습니다.
+
+```typescript
+const onSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+
+  const newMessage = {
+    id: Date.now(),
+    payload: inputMessage,
+    created_at: new Date(),
+    userId,
+    user: {
+      username,
+      avatar,
+    },
+    // isRead가 false인 채로 전송
+    isRead: false,
+  };
+
+  setMessages((prevMsgs) => [...prevMsgs, newMessage]);
+
+  channel.current?.send({
+    type: "broadcast",
+    event: "message",
+    payload: newMessage,
+  });
+
+  await saveMessage(inputMessage, chatRoomId, false);
+  setInputMessage("");
+};
+```
+
+여기까지 구현을 하고 난 뒤 테스트를 해봤습니다. 그런데 이 과정에서 뭔가 어색한 점을 발견했어요. 🤨
+
+문제는 위 함수에서 `isRead` 상태가 항상 `false`로 저장된다는 점이었어요. 이 때문에 다음의 상황에서는 제약이 있었습니다.
+
+- 유저 A와 B가 동시에 채팅방에 접속해 있을 때, 메시지를 주고받더라도 실시간으로 `읽음` 상태를 반영할 수 없었어요.
+- 유저 A가 메시지를 보낸 후, 유저 B가 채팅방에 바로 접속했을 때도 유저 A는 실시간으로 `읽음` 상태를 확인할 수 없었어요.
+- 이를 해결하기 위해 유저 A는 채팅방을 나갔다가 다시 들어와야하는 번거로움이 있었어요.
+
+이 문제를 해결하려면 다음과 같은 보완된 흐름이 필요하다고 생각했습니다.
+
+- **단독 입장한 상태**:
+  - 유저가 채팅방에 입장하면 상대방이 보낸 모든 메시지를 `읽음` 처리.
+  - 메시지를 보낼때는 `읽지 않음` 상태로 전송.
+
+* **함께 입장한 상태**:
+  - 메시지를 보내면 `읽음` 상태로 보내고 실시간으로 `읽음` 처리.
+  - 중간에 유저가 접속하면 실시간으로 `읽음` 처리.
+
+그리고 이를 해결하기 위해 Supabase 공식문서를 읽던 중 **Presence**라는 메소드를 발견했습니다.
+
+### [Presence](https://supabase.com/docs/guides/realtime/presence?queryGroups=language&language=js)
+
+> You can use the Supabase client libraries to track Presence state between users.
+
+실시간으로 메시지를 `읽음` 처리를 하기 위해서는 유저의 채팅방 접속 여부를 실시간으로 확인할 필요가 있었고, 이 메소드는 그 목적에 딱 맞는 기능이었습니다.
+
+이제 이 메소드를 사용해 구현을 해보겠습니다.
+
+1. **채널 생성 및 Presence 설정**
+   먼저, 채널을 생성하고 특정 사용자의 실시간 상태를 Presence 기능을 통해 추적하고 공유할 수 있도록 설정합니다. 여기서 key 값은 고유해야 합니다.
+
+```typescript
+import { createClient } from "@supabase/supabase-js";
+
+const client = createClient(String(SUPABASE_URL), String(SUPABASE_KEY));
+channel.current = client.channel(`chatRoom-${chatRoomId}`, {
+  config: {
+    presence: {
+      key: String(userId),
+    },
+  },
+});
+```
+
+2. **Presence 이벤트 처리**  
+   Presence 메서드는 유저가 채널에 참여(`join`)하거나 퇴장(`leave`)하거나 상태를 변경할 때 트리거되는 이벤트를 제공합니다. 저는 `sync` 이벤트를 사용해서 유저의 상태가 변경되면 알림을 받도록 했어요. 그리고 실시간으로 `읽음` 처리를 위해, 현재 접속한 유저 수가 2명 이상일 경우, 메시지를 `읽음` 처리하는 서버 함수를 실행하도록 했고, `onlineUsers`의 상태를 업데이트하도록 했습니다. 이로 인해 상태가 업데이트되면서 리렌더링이 유도되어, 유저는 실시간으로 `읽음` 상태를 확인할 수 있게 됩니다.
+
+```typescript
+channel.current
+  .on("broadcast", { event: "message" }, (payload) => {
+    setMessages((prevMsgs) => [...prevMsgs, payload.payload]);
+  })
+  .on("presence", { event: "sync" }, () => {
+    const newState = channel.current!.presenceState();
+    const onlineUsers = Object.keys(newState).length;
+
+    if (onlineUsers > 1) {
+      markMessagesAsRead(chatRoomId);
+    }
+
+    setOnlineUsers(onlineUsers);
+  })
+  .subscribe();
+```
+
+3. 이벤트를 구독했다면 해당 채널을 구독하고 있는 모든 유저에게 상태를 전송해야 하는데요. 이를 위해 `track()` 메소드를 사용할 수 있습니다.
+
+```typescript
+const userStatus = {
+  online_at: new Date().toISOString(),
+  userId,
+};
+channel.current.track(userStatus);
+```
+
+이렇게 하면 동일한 채팅방을 구독하는 다른 유저의 상태 (여기서는 `userStatus`)를 받을 수 있게 됩니다. 그리고 모든 유저는 상태 업데이트를 받으면 자동으로 자신의 `sync`와 `join` 이벤트가 트리거되게 되죠.
+
+즉, 유저의 접속 상태가 업데이트될 때마다 Supabase가 자동으로 해당 클라이언트의 `sync`와 `join` 이벤트 핸들러를 실행해주는 겁니다. 덕분에, 클라이언트가 상태를 수동으로 동기화하거나 이벤트 핸들러를 직접 트리거할 필요가 없어집니다.
+
+### 최종 코드
+
+이렇게 완성 된 최종적인 코드는 다음과 같습니다.
+
+```typescript
+useEffect(() => {
+  // 클라이언트 생성 및 설정
+  const client = createClient(String(SUPABASE_URL), String(SUPABASE_KEY));
+  channel.current = client.channel(`chatRoom-${chatRoomId}`, {
+    config: {
+      presence: {
+        key: String(userId),
+      },
+    },
+  });
+
+  channel.current
+    // 메시지 이벤트 구독
+    .on("broadcast", { event: "message" }, (payload) => {
+      // 새로운 메시지 수신 시 상태 업데이트
+      setMessages((prevMsgs) => [...prevMsgs, payload.payload]);
+    })
+    // 접속 이벤트 구독
+    .on("presence", { event: "sync" }, () => {
+      const newState = channel.current!.presenceState();
+      const onlineUsers = Object.keys(newState).length;
+      // 접속자가 2명이 되면 모든 메시지를 읽음 처리
+      if (onlineUsers > 1) {
+        markMessagesAsRead(chatRoomId);
+      }
+      // 접속자 수 상태 업데이트 (읽음 상태를 실시간으로 반영)
+      setOnlineUsers(onlineUsers);
+    })
+    .subscribe();
+
+  // 유저 접속 정보 추적
+  channel.current.track({
+    online_at: new Date().toISOString(),
+    userId,
+  });
+
+  return () => {
+    channel.current?.unsubscribe();
+  };
+}, [chatRoomId, userId]);
+```
+
+```typescript
+const onSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+
+  // 현재 채팅방에 두 명 이상의 사용자가 있을 경우 메시지를 읽음 처리
+  const isRead = onlineUsers > 1;
+
+  const newMessage = {
+    id: Date.now(),
+    payload: inputMessage,
+    created_at: new Date(),
+    userId,
+    user: {
+      username,
+      avatar,
+    },
+    isRead,
+  };
+
+  // 메시지 상태 업데이트
+  setMessages((prevMsgs) => [...prevMsgs, newMessage]);
+
+  // 채널에 메시지 이벤트 전송
+  channel.current?.send({
+    type: "broadcast",
+    event: "message",
+    payload: newMessage,
+  });
+
+  // DB에 메시지 저장
+  await saveMessage(inputMessage, chatRoomId, isRead);
+
+  // 입력 필드 초기화
+  setInputMessage("");
+};
+```
+
+### 최종 결과
+
+그리고 완성된 최종 결과는 다음과 같습니다.
+
+![최종 결과](/assets/blog/supabase-realtime-chat-read-receipts/image-2.gif)
