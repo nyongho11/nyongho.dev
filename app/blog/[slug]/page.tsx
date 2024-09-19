@@ -56,23 +56,22 @@ export function generateMetadata({ params, searchParams }: Props): Metadata {
       title: post.title,
       description: post.description,
       images: [
-        'https://github.com/Yongho5580/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0',
+        "https://github.com/nyongho11/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0",
       ],
       locale: "ko_KR",
       type: "website",
-      siteName: 'nyongho'
+      siteName: "nyongho",
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
       images: [
-        'https://github.com/Yongho5580/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0',
+        "https://github.com/nyongho11/nyongho.dev/assets/70843139/44491e93-3e5b-4785-8316-fedfbe878ef0",
       ],
-    }
+    },
   };
 }
-
 
 export function generateStaticParams() {
   const posts = getAllPosts();

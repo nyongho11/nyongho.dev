@@ -42,7 +42,7 @@ export default function Home() {
             <LinkedInLogoIcon />
           </a>
           <a
-            href="https://github.com/Yongho5580"
+            href="https://github.com/nyongho11"
             aria-label="github"
             target="_blank"
           >
